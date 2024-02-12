@@ -31,6 +31,11 @@ def moncommits():
         results.append({'date': commit_date})
     return jsonify(results=results)
 
+  @app.route("/com/")
+def moncom():
+    return render_template("commits.html")
+
+
 @app.route('/paris/')
 def meteo():
     response = urlopen('https://api.openweathermap.org/data/2.5/forecast/daily?q=Paris,fr&cnt=16&appid=bd5e378503939ddaee76f12ad7a97608')
