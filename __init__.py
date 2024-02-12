@@ -22,7 +22,15 @@ def monhistogramme():
 
 @app.route("/commits/")
 def moncommits():
-    return render_template("commits.html")
+    response = urlopen('https://api.github.com/eliott194/5MCSI_Metriques/commits')
+    raw_content = response.read()
+    json_content = json.loads(raw_content.decode('utf-8'))
+    results = []
+    for list_element in json_content.get('list', []):
+        dt_value = list_element.get('dt')
+        temp_day_value = list_element.get('Commit', {}).get('author', {}).get('date', {})
+        results.append({'Jour': dt_value, 'temp': temp_day_value})
+    return jsonify(results=results)
 
 @app.route('/extract-minutes/<date_string>')
 def extract_minutes(date_string):
