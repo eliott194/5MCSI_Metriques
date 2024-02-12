@@ -31,7 +31,7 @@ def moncommits():
         results.append({'date': commit_date})
     return jsonify(results=results)
 
-  @app.route("/com/")
+@app.route("/com/")
 def moncom():
     return render_template("commits.html")
 
