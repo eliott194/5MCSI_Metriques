@@ -22,7 +22,7 @@ def monhistogramme():
 
 @app.route("/commits/")
 def moncommits():
-   response = urlopen('https://api.github.com/eliott194/5MCSI_Metriques/commits')
+   response = urlopen('https://api.github.com/repos/eliott194/5MCSI_Metriques/commits')
    return response
    #raw_content = response.read()
    #json_content = json.loads(raw_content.decode('utf-8'))
