@@ -29,9 +29,6 @@ def moncommits():
     for commit in json_content:
         commit_date = commit['commit']['author']['date']
         results.append({'date': commit_date})
-        date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
-        minutes = date_object.minute
-    return jsonify({'minutes': minutes})
     return jsonify(results=results)
 
 @app.route('/paris/')
