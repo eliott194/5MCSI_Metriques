@@ -45,7 +45,7 @@ def extract_minutes(date_string):
 @app.route('/commits/')
 def commits_graph():
     # Requête à l'API GitHub pour obtenir les commits
-    response = requests.get('https://github.com/eliott194/5MCSI_Metriques/commits')
+    response = requests.get('https://api.github.com/repos/eliott194/5MCSI_Metriques/commits')
     commits = response.json()
 
     
