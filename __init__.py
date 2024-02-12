@@ -27,12 +27,17 @@ def moncommits():
     json_content = json.loads(raw_content.decode('utf-8'))
     results = []
     for commit in json_content:
+        # Extraire les informations nécessaires de chaque commit
         commit_date = commit['commit']['author']['date']
+        commit_author = commit['commit']['author']['name']  # Exemple de comment extraire le nom de l'auteur
+        commit_commit = commit['sha']  # Exemple de comment extraire l'identifiant du commit
+
+        # Ajouter un dictionnaire avec ces informations à la liste des résultats
         results.append({
-    'date': commit_date,
-    'author': commit_author,
-    'commit': commit_commit
-})
+            'date': commit_date,
+            'author': commit_author,
+            'commit': commit_commit
+        })
     return jsonify(results=results)
 
 @app.route("/com/")
