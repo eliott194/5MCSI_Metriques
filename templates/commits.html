@@ -26,11 +26,10 @@
               dataTable.addColumn('number', author);
             });
 
-            var countsPerMinute = {}; // Object to hold counts of commits per minute for each author
+            var countsPerMinute = {};
 
             data.results.forEach(commit => {
               const commitTime = new Date(commit.date);
-              // Check if commit is within the specified time range
               if (commitTime >= new Date(2024, 1, 12, 14, 0, 0) && commitTime <= new Date(2024, 1, 12, 18, 0, 0)) {
                 const timeKey = commitTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 if (!countsPerMinute[timeKey]) {
