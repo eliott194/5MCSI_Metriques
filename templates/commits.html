@@ -1,0 +1,44 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Commits Metrics</title>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+      google.charts.load('current', { packages: ['corechart'] });
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+        // Convertir les données récupérées en un tableau utilisable par Google Charts
+        var dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Date');
+        dataTable.addColumn('number', 'Nombre de Commits');
+
+        // Récupération de données depuis notre API /commits/
+        fetch('/commits/')
+          .then(response => response.json())
+          .then(data => {
+            data.results.forEach(entry => {
+              // Extraire juste la date sans l'heure pour regrouper par jour (ou ajustez selon besoin)
+              var date = new Date(entry.date);
+              var dateString = date.toLocaleDateString();
+              // Compter les occurrences par date dans une structure intermédiaire si nécessaire
+              dataTable.addRow([dateString, 1]); // Ici, '1' représente un commit, ajustez selon le comptage souhaité
+            });
+            
+            // Configurer les options du graphique
+            var options = {
+              title: 'Nombre de Commits par Date',
+              curveType: 'function',
+              legend: { position: 'bottom' }
+            };
+            
+            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+            chart.draw(dataTable, options);
+          });
+      }
+    </script>
+  </head>
+  <body>
+    <div id="chart_div"></div>
+  </body>
+</html>
