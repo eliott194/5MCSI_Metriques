@@ -19,38 +19,39 @@
           .then(data => {
             var dataTable = new google.visualization.DataTable();
             dataTable.addColumn('datetime', 'Time');
-            // Ajouter dynamiquement une colonne pour chaque auteur
             var authorsSet = new Set(data.results.map(item => item.author));
             var authors = Array.from(authorsSet);
-            var colors = ['#e2431e', '#6f9654', '#1c91c0', '#f1ca3a', '#4374e0']; // Palette de couleurs pour les auteurs
-            
+
             authors.forEach(author => {
               dataTable.addColumn('number', author);
             });
 
-            // Préparer les données pour Google Charts
-            var formattedData = []; // Cette partie doit être ajustée selon le format de vos données
+            var countsPerMinute = {}; // Object to hold counts of commits per minute for each author
 
-            // Supposons que vous avez filtré les données par date/heure côté serveur
-            // Ici, vous devez organiser ces données dans le format attendu par Google Charts
             data.results.forEach(commit => {
-              let commitTime = new Date(commit.date); // Assurez-vous que la date est correctement formatée
-              // Ici, vous devez insérer les données dans formattedData
-              // Note : cet exemple ne montre pas le comptage précis des commits par minute et par auteur
+              const commitTime = new Date(commit.date);
+              // Check if commit is within the specified time range
+              if (commitTime >= new Date(2024, 1, 12, 14, 0, 0) && commitTime <= new Date(2024, 1, 12, 18, 0, 0)) {
+                const timeKey = commitTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                if (!countsPerMinute[timeKey]) {
+                  countsPerMinute[timeKey] = authors.reduce((acc, author) => ({...acc, [author]: 0}), {});
+                }
+                countsPerMinute[timeKey][commit.author]++;
+              }
             });
 
-            // Exemple de données ajoutées à dataTable
-            authors.forEach((author, index) => {
-              // Ajouter des données exemple pour chaque auteur
-              // Vous devez remplacer ceci par votre logique pour compter et organiser les commits
-              dataTable.addRow([new Date(), ...Array(authors.length).fill().map((_, i) => i === index ? 1 : null)]);
+            const rows = Object.keys(countsPerMinute).sort().map(timeKey => {
+              const timeParts = timeKey.split(':');
+              const date = new Date(2024, 1, 12, parseInt(timeParts[0]), parseInt(timeParts[1]));
+              return [date, ...authors.map(author => countsPerMinute[timeKey][author])];
             });
+
+            dataTable.addRows(rows);
 
             var options = {
               title: 'Commits par Minute par Auteur',
               curveType: 'function',
               legend: { position: 'bottom' },
-              colors: colors.slice(0, authors.length),
               hAxis: {
                 title: 'Temps',
                 format: 'HH:mm',
