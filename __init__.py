@@ -20,18 +20,16 @@ def mongraphique():
 def monhistogramme():
     return render_template("histogramme.html")
 
-#@app.route("/commits/")
-#def moncommits():
- #   response = urlopen('https://api.github.com/eliott194/5MCSI_Metriques/commits')
-  #  raw_content = response.read()
-   # json_content = json.loads(raw_content.decode('utf-8'))
-    #results = []
-    #for commit in json_content:
-        # Directement accéder aux champs nécessaires
-     #   commit_date = commit['commit']['author']['date']
-        # Pas besoin de 'dt' ou 'temp_day_value' ici, juste la date du commit
-      #  results.append({'date': commit_date})
-    #return jsonify(results=results)
+@app.route("/commits/")
+def moncommits():
+   response = urlopen('https://api.github.com/eliott194/5MCSI_Metriques/commits')
+   raw_content = response.read()
+   json_content = json.loads(raw_content.decode('utf-8'))
+    results = []
+    for commit in json_content:
+        commit_date = commit['commit']['author']['date']
+        results.append({'date': commit_date})
+    return jsonify(results=results)
   
 
 
