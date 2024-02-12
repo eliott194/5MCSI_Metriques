@@ -4,8 +4,7 @@ from flask import json
 from datetime import datetime
 from urllib.request import urlopen
 import sqlite3
-import matplotlib.pyplot as plt
-import requests
+
                                                                                                                                        
 app = Flask(__name__)     
 
@@ -36,41 +35,6 @@ def meteo():
 @app.route('/')
 def hello_world():
     return render_template('hello.html')
-
-@app.route('/extract-minutes/<date_string>')
-def extract_minutes(date_string):
-    date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
-    minutes = date_object.minute
-    return jsonify({'minutes': minutes})
-
-# Route pour afficher le graphique des commits par minute
-@app.route('/commits/')
-def commits_graph():
-    # Requête à l'API GitHub pour obtenir les commits
-    response = requests.get('https://api.github.com/repos/eliott194/5MCSI_Metriques/commits')
-    commits = response.json()
-
-    
-    commit_minutes = [datetime.strptime(commit['commit']['author']['date'], '%Y-%m-%dT%H:%M:%SZ').minute for commit in commits]
-
-    
-    minutes_count = {}
-    for minute in commit_minutes:
-        if minute in minutes_count:
-            minutes_count[minute] += 1
-        else:
-            minutes_count[minute] = 1
-
-    # Création d'un graphique
-    plt.figure(figsize=(10, 6))
-    plt.bar(minutes_count.keys(), minutes_count.values(), color='blue')
-    plt.xlabel('Minutes')
-    plt.ylabel('Nombre de commits')
-    plt.title('Commits par minute')
-    plt.savefig('commits_by_minute.png')
-    
-    return '<img src="commits_by_minute.png" />'
-
 
   
 if __name__ == "__main__":
