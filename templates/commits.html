@@ -1,5 +1,5 @@
 <html>
-  <head>
+<head>
     <meta charset="UTF-8" />
     <title>Commits Metrics</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -8,37 +8,47 @@
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
-        // Convertir les données récupérées en un tableau utilisable par Google Charts
-        var dataTable = new google.visualization.DataTable();
-        dataTable.addColumn('string', 'Date');
-        dataTable.addColumn('number', 'Nombre de Commits');
+        // Initialiser un tableau vide pour les données du graphique
+        var dataForChart = [
+          ['Date', 'Nombre de Commits']
+        ];
 
         // Récupération de données depuis notre API /commits/
         fetch('/commits/')
           .then(response => response.json())
           .then(data => {
+            var commitsInfo = ''; // Initialiser une chaîne vide pour stocker les informations des commits
             data.results.forEach(entry => {
-              // Extraire juste la date sans l'heure pour regrouper par jour (ou ajustez selon besoin)
+              // Formatage de la date
               var date = new Date(entry.date);
               var dateString = date.toLocaleDateString();
-              // Compter les occurrences par date dans une structure intermédiaire si nécessaire
-              dataTable.addRow([dateString, 8]); // Ici, '1' représente un commit, ajustez selon le comptage souhaité
+
+              // Ajout des informations de chaque commit à la chaîne
+              commitsInfo += 'Date: ' + dateString + ', Auteur: ' + entry.author + ', Commit: ' + entry.commit + '<br>';
+
+              // Ajouter les données au tableau pour le graphique
+              // Note : cette partie nécessiterait un ajustement pour compter correctement les commits par date
+              dataForChart.push([dateString, 1]); // Exemple simplifié
             });
-            
-            // Configurer les options du graphique
+
+            // Affichage des informations des commits
+            document.getElementById('commits_info').innerHTML = commitsInfo;
+
+            // Dessiner le graphique avec les données collectées
+            var dataTable = google.visualization.arrayToDataTable(dataForChart);
             var options = {
               title: 'Nombre de Commits par Date',
               curveType: 'function',
               legend: { position: 'bottom' }
             };
-            
             var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
             chart.draw(dataTable, options);
           });
       }
     </script>
-  </head>
-  <body>
+</head>
+<body>
     <div id="chart_div"></div>
-  </body>
+    <div id="commits_info"></div> <!-- Div pour afficher les informations des commits -->
+</body>
 </html>
