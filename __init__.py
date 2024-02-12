@@ -32,12 +32,8 @@ def moncommits():
         # Pas besoin de 'dt' ou 'temp_day_value' ici, juste la date du commit
         results.append({'date': commit_date})
     return jsonify(results=results)
+  
 
-@app.route('/extract-minutes/<date_string>')
-def extract_minutes(date_string):
-    date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
-    minutes = date_object.minute
-    return jsonify({'minutes': minutes})
 
 @app.route('/paris/')
 def meteo():
