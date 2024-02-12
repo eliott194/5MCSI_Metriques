@@ -25,8 +25,8 @@
       curveType: 'function',
       legend: { position: 'bottom' }
     };
-    var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-    chart.draw(dataTable, options);
+    var chart = new google.visualization.Histogram(document.getElementById('chart_div'));
+        chart.draw(data, options);
   }
   // Récupération de données depuis notre API /paris/
   fetch('/paris/')
