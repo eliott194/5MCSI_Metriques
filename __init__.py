@@ -17,8 +17,8 @@ def mongraphique():
 def monhistogramme():
     return render_template("histogramme.html")
 
-@app.route("/commits/")
-def moncommits():
+@app.route("/com/")
+def moncom():
     try:
         response = urlopen('https://api.github.com/repos/eliott194/5MCSI_Metriques/commits')
         raw_content = response.read()
@@ -37,8 +37,8 @@ def moncommits():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route("/com/")
-def moncom():
+@app.route("/commits/")
+def moncommits():
     return render_template("commits.html")
 
 @app.route('/paris/')
