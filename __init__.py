@@ -26,17 +26,18 @@ def moncommits():
     raw_content = response.read()
     json_content = json.loads(raw_content.decode('utf-8'))
     results = []
-    for list_element in json_content.get('list', []):
-        dt_value = list_element.get('dt')
-        temp_day_value = list_element.get('Commit', {}).get('author', {}).get('date', {})
-        results.append({'Jour': dt_value, 'temp': temp_day_value})
+    for commit in json_content:
+        # Directement accéder aux champs nécessaires
+        commit_date = commit['commit']['author']['date']
+        # Pas besoin de 'dt' ou 'temp_day_value' ici, juste la date du commit
+        results.append({'date': commit_date})
     return jsonify(results=results)
 
 @app.route('/extract-minutes/<date_string>')
 def extract_minutes(date_string):
-        date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
-        minutes = date_object.minute
-        return jsonify({'minutes': minutes})
+    date_object = datetime.strptime(date_string, '%Y-%m-%dT%H:%M:%SZ')
+    minutes = date_object.minute
+    return jsonify({'minutes': minutes})
 
 @app.route('/paris/')
 def meteo():
