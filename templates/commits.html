@@ -26,45 +26,11 @@
               dataTable.addColumn('number', author);
             });
 
-            // Initialise un objet pour stocker les comptes des commits par minute pour chaque auteur
-            var countsPerMinute = {};
-
-            // Créer une liste de toutes les minutes dans l'intervalle spécifié
-            var startTime = new Date(2024, 1, 12, 14, 0, 0); // 12 février 2024, 14h
-            var endTime = new Date(2024, 1, 12, 19, 0, 0); // 12 février 2024, 18h
-            var time = new Date(startTime);
-
-            while (time <= endTime) {
-              var timeKey = time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-              countsPerMinute[timeKey] = authors.reduce((acc, author) => ({...acc, [author]: 0}), {});
-              time.setMinutes(time.getMinutes() + 1);
-            }
-
-            // Compter les commits par minute pour chaque auteur
-            data.results.forEach(commit => {
-              var commitTime = new Date(commit.date);
-              if (commitTime >= startTime && commitTime <= endTime) {
-                var timeKey = commitTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                if (countsPerMinute[timeKey]) {
-                  countsPerMinute[timeKey][commit.author]++;
-                }
-              }
-            });
-
-            // Ajouter les données au tableau de Google Charts
-            Object.keys(countsPerMinute).forEach(timeKey => {
-              var timeParts = timeKey.split(':');
-              var date = new Date(2024, 1, 12, parseInt(timeParts[0]), parseInt(timeParts[1]));
-              var row = [date];
-              authors.forEach(author => {
-                row.push(countsPerMinute[timeKey][author]);
-              });
-              dataTable.addRow(row);
-            });
+            // Ajouter les données au tableau de Google Charts comme avant
+            // ...
 
             var options = {
               title: 'Commits par Minute par Auteur',
-              curveType: 'function',
               legend: { position: 'bottom' },
               hAxis: {
                 title: 'Temps',
@@ -73,9 +39,13 @@
               vAxis: {
                 title: 'Nombre de Commits',
               },
+              series: authors.reduce((acc, cur, index) => {
+                acc[index] = { type: 'scatter', pointSize: 5 }; // Configure chaque série comme un scatter avec une taille de point spécifique
+                return acc;
+              }, {}),
             };
 
-            var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+            var chart = new google.visualization.ScatterChart(document.getElementById('chart_div'));
             chart.draw(dataTable, options);
           })
           .catch(error => {
