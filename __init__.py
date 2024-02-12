@@ -4,6 +4,8 @@ from flask import json
 from datetime import datetime
 from urllib.request import urlopen
 import sqlite3
+import matplotlib.pyplot as plt
+import requests
                                                                                                                                        
 app = Flask(__name__)     
 
