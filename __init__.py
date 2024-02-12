@@ -28,9 +28,7 @@ def moncommits():
     results = []
     for commit in json_content:
         commit_date = commit['commit']['author']['date']
-        results.append({'date': commit_date})
-        results.append({'author': commit_author})
-        results.append({'commit': commit_commit})
+        results.append({'date': commit_date}, {'author': commit_author}, {'commit': commit_commit})
     return jsonify(results=results)
 
 @app.route("/com/")
