@@ -1,5 +1,5 @@
 <html>
-<head>
+  <head>
     <meta charset="UTF-8" />
     <title>Commits Metrics</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -8,47 +8,42 @@
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
-        // Initialiser un tableau vide pour les données du graphique
-        var dataForChart = [
-          ['Date', 'Nombre de Commits']
-        ];
+        var dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string', 'Date');
+        dataTable.addColumn('number', 'Nombre de Commits');
 
-        // Récupération de données depuis notre API /commits/
         fetch('/commits/')
           .then(response => response.json())
           .then(data => {
-            var commitsInfo = ''; // Initialiser une chaîne vide pour stocker les informations des commits
+            let commitCounts = {}; // Clé : dateString, Valeur : nombre de commits
             data.results.forEach(entry => {
-              // Formatage de la date
               var date = new Date(entry.date);
-              var dateString = date.toLocaleDateString();
-
-              // Ajout des informations de chaque commit à la chaîne
-              commitsInfo += 'Date: ' + dateString + ', Auteur: ' + entry.author + ', Commit: ' + entry.commit + '<br>';
-
-              // Ajouter les données au tableau pour le graphique
-              // Note : cette partie nécessiterait un ajustement pour compter correctement les commits par date
-              dataForChart.push([dateString, 1]); // Exemple simplifié
+              var dateString = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
+              
+              if (commitCounts[dateString]) {
+                commitCounts[dateString] += 1;
+              } else {
+                commitCounts[dateString] = 1;
+              }
             });
 
-            // Affichage des informations des commits
-            document.getElementById('commits_info').innerHTML = commitsInfo;
+            for (let [dateString, count] of Object.entries(commitCounts)) {
+              dataTable.addRow([dateString, count]);
+            }
 
-            // Dessiner le graphique avec les données collectées
-            var dataTable = google.visualization.arrayToDataTable(dataForChart);
             var options = {
-              title: 'Nombre de Commits par Date',
+              title: 'Nombre de Commits par Minute',
               curveType: 'function',
               legend: { position: 'bottom' }
             };
+            
             var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
             chart.draw(dataTable, options);
           });
       }
     </script>
-</head>
-<body>
+  </head>
+  <body>
     <div id="chart_div"></div>
-    <div id="commits_info"></div> <!-- Div pour afficher les informations des commits -->
-</body>
+  </body>
 </html>
