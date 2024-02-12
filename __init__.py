@@ -23,14 +23,14 @@ def monhistogramme():
 @app.route("/commits/")
 def moncommits():
    response = urlopen('https://api.github.com/repos/eliott194/5MCSI_Metriques/commits')
-   return response
-   #raw_content = response.read()
-   #json_content = json.loads(raw_content.decode('utf-8'))
-    #results = []
-    #for commit in json_content:
-        #commit_date = commit['commit']['author']['date']
-        #results.append({'date': commit_date})
-    #return jsonify(results=results)
+   #return response
+   raw_content = response.read()
+   json_content = json.loads(raw_content.decode('utf-8'))
+    results = []
+    for commit in json_content:
+        commit_date = commit['commit']['author']['date']
+        results.append({'date': commit_date})
+    return jsonify(results=results)
   
 
 
