@@ -1,49 +1,68 @@
 <html>
-  <head>
+<head>
     <meta charset="UTF-8" />
     <title>Commits Metrics</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
-      google.charts.load('current', { packages: ['corechart'] });
+      google.charts.load('current', {packages: ['corechart']});
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
-        var dataTable = new google.visualization.DataTable();
-        dataTable.addColumn('string', 'Date');
-        dataTable.addColumn('number', 'Nombre de Commits');
-
         fetch('/commits/')
           .then(response => response.json())
           .then(data => {
-            let commitCounts = {}; // Clé : dateString, Valeur : nombre de commits
-            data.results.forEach(entry => {
-              var date = new Date(entry.date);
-              var dateString = `${date.getFullYear()}-${date.getMonth()+1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
-              
-              if (commitCounts[dateString]) {
-                commitCounts[dateString] += 1;
-              } else {
-                commitCounts[dateString] = 1;
-              }
+            var dataTable = new google.visualization.DataTable();
+            dataTable.addColumn('datetime', 'Time');
+            // Dynamiquement ajouter des colonnes pour chaque auteur trouvé
+            var authors = [...new Set(data.results.map(commit => commit.author))];
+            var authorColors = {}; // Pour conserver la couleur attribuée à chaque auteur
+            var colors = ['#e2431e', '#f1ca3a', '#6f9654', '#1c91c0', '#43459d']; // Palette de couleurs
+            authors.forEach((author, index) => {
+              dataTable.addColumn('number', author);
+              authorColors[author] = colors[index % colors.length];
             });
 
-            for (let [dateString, count] of Object.entries(commitCounts)) {
-              dataTable.addRow([dateString, count]);
-            }
+            // Initialiser un objet pour compter les commits par minute pour chaque auteur
+            var commitsByMinute = {};
+
+            // Traiter chaque commit pour regrouper par minute
+            data.results.forEach(commit => {
+              var date = new Date(commit.date);
+              var timeKey = date.getHours() * 60 + date.getMinutes(); // Clé unique pour chaque minute
+              if (!commitsByMinute[timeKey]) {
+                commitsByMinute[timeKey] = { time: date };
+                authors.forEach(author => {
+                  commitsByMinute[timeKey][author] = 0;
+                });
+              }
+              commitsByMinute[timeKey][commit.author]++;
+            });
+
+            // Trier les clés (minutes) et ajouter les données triées à dataTable
+            var sortedKeys = Object.keys(commitsByMinute).sort((a, b) => a - b);
+            sortedKeys.forEach(key => {
+              var row = [commitsByMinute[key].time];
+              authors.forEach(author => {
+                row.push(commitsByMinute[key][author]);
+              });
+              dataTable.addRow(row);
+            });
 
             var options = {
-              title: 'Nombre de Commits par Minute',
-              curveType: 'function',
-              legend: { position: 'bottom' }
+              title: 'Commits par minute et par auteur du 12 février de 14h à 18h',
+              hAxis: { title: 'Heure', format: 'HH:mm', viewWindow: {min: new Date(2024, 1, 12, 14), max: new Date(2024, 1, 12, 18)} },
+              vAxis: { title: 'Nombre de Commits' },
+              colors: authors.map(author => authorColors[author]),
+              legend: { position: 'right' }
             };
-            
+
             var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
             chart.draw(dataTable, options);
           });
       }
     </script>
-  </head>
-  <body>
-    <div id="chart_div"></div>
-  </body>
+</head>
+<body>
+    <div id="chart_div" style="width: 100%; height: 500px;"></div>
+</body>
 </html>
