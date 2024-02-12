@@ -1,16 +1,13 @@
-from flask import Flask, render_template_string, render_template, jsonify
-from flask import render_template
-from flask import json
+from flask import Flask, render_template, jsonify
+import json
 from datetime import datetime
 from urllib.request import urlopen
-import sqlite3
 
-                                                                                                                                       
-app = Flask(__name__)     
+app = Flask(__name__)
 
 @app.route("/contact/")
 def MaPremiereAPI():
-    return render_template("contact.html") 
+    return render_template("contact.html")
 
 @app.route("/rapport/")
 def mongraphique():
@@ -22,45 +19,46 @@ def monhistogramme():
 
 @app.route("/commits/")
 def moncommits():
-    response = urlopen('https://api.github.com/repos/eliott194/5MCSI_Metriques/commits')
-    raw_content = response.read()
-    json_content = json.loads(raw_content.decode('utf-8'))
-    results = []
-    for commit in json_content:
-        commit_date = commit['commit']['author']['date']
-        commit_author = commit['commit']['author']['name']  
-        commit_commit = commit['sha'] 
-
-        
-        results.append({
-            'date': commit_date,
-            'author': commit_author,
-            'commit': commit_commit
-        })
-    return jsonify(results=results)
+    try:
+        response = urlopen('https://api.github.com/repos/eliott194/5MCSI_Metriques/commits')
+        raw_content = response.read()
+        json_content = json.loads(raw_content.decode('utf-8'))
+        results = []
+        for commit in json_content:
+            commit_date = commit['commit']['author']['date']
+            commit_author = commit['commit']['author']['name']  
+            commit_commit = commit['sha']
+            results.append({
+                'date': commit_date,
+                'author': commit_author,
+                'commit': commit_commit
+            })
+        return jsonify(results=results)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/com/")
 def moncom():
     return render_template("commits.html")
 
-
 @app.route('/paris/')
 def meteo():
-    response = urlopen('https://api.openweathermap.org/data/2.5/forecast/daily?q=Paris,fr&cnt=16&appid=bd5e378503939ddaee76f12ad7a97608')
-    raw_content = response.read()
-    json_content = json.loads(raw_content.decode('utf-8'))
-    results = []
-    for list_element in json_content.get('list', []):
-        dt_value = list_element.get('dt')
-        temp_day_value = list_element.get('temp', {}).get('day') - 273.15 # Conversion de Kelvin en °c 
-        results.append({'Jour': dt_value, 'temp': temp_day_value})
-    return jsonify(results=results)
-  
+    try:
+        response = urlopen('https://api.openweathermap.org/data/2.5/forecast/daily?q=Paris,fr&cnt=16&appid=YOUR_API_KEY')
+        raw_content = response.read()
+        json_content = json.loads(raw_content.decode('utf-8'))
+        results = []
+        for list_element in json_content.get('list', []):
+            dt_value = list_element.get('dt')
+            temp_day_value = list_element.get('temp', {}).get('day', 0) - 273.15
+            results.append({'Jour': dt_value, 'temp': temp_day_value})
+        return jsonify(results=results)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/')
 def hello_world():
     return render_template('hello.html')
 
-  
 if __name__ == "__main__":
-  app.run(debug=True)
-  
+    app.run(debug=True)
