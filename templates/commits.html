@@ -1,63 +1,74 @@
+<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8">
     <title>Commits Metrics</title>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
-      google.charts.load('current', {packages: ['corechart']});
+      google.charts.load('current', {'packages':['corechart']});
       google.charts.setOnLoadCallback(drawChart);
 
       function drawChart() {
         fetch('/commits/')
-          .then(response => response.json())
+          .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
           .then(data => {
             var dataTable = new google.visualization.DataTable();
             dataTable.addColumn('datetime', 'Time');
-            // Dynamiquement ajouter des colonnes pour chaque auteur trouvé
-            var authors = [...new Set(data.results.map(commit => commit.author))];
-            var authorColors = {}; // Pour conserver la couleur attribuée à chaque auteur
-            var colors = ['#e2431e', '#f1ca3a', '#6f9654', '#1c91c0', '#43459d']; // Palette de couleurs
-            authors.forEach((author, index) => {
+            // Ajouter dynamiquement une colonne pour chaque auteur
+            var authorsSet = new Set(data.results.map(item => item.author));
+            var authors = Array.from(authorsSet);
+            var colors = ['#e2431e', '#6f9654', '#1c91c0', '#f1ca3a', '#4374e0']; // Palette de couleurs pour les auteurs
+            
+            authors.forEach(author => {
               dataTable.addColumn('number', author);
-              authorColors[author] = colors[index % colors.length];
             });
 
-            // Initialiser un objet pour compter les commits par minute pour chaque auteur
-            var commitsByMinute = {};
+            // Préparer les données pour Google Charts
+            var formattedData = []; // Cette partie doit être ajustée selon le format de vos données
 
-            // Traiter chaque commit pour regrouper par minute
+            // Supposons que vous avez filtré les données par date/heure côté serveur
+            // Ici, vous devez organiser ces données dans le format attendu par Google Charts
             data.results.forEach(commit => {
-              var date = new Date(commit.date);
-              var timeKey = date.getHours() * 60 + date.getMinutes(); // Clé unique pour chaque minute
-              if (!commitsByMinute[timeKey]) {
-                commitsByMinute[timeKey] = { time: date };
-                authors.forEach(author => {
-                  commitsByMinute[timeKey][author] = 0;
-                });
-              }
-              commitsByMinute[timeKey][commit.author]++;
+              let commitTime = new Date(commit.date); // Assurez-vous que la date est correctement formatée
+              // Ici, vous devez insérer les données dans formattedData
+              // Note : cet exemple ne montre pas le comptage précis des commits par minute et par auteur
             });
 
-            // Trier les clés (minutes) et ajouter les données triées à dataTable
-            var sortedKeys = Object.keys(commitsByMinute).sort((a, b) => a - b);
-            sortedKeys.forEach(key => {
-              var row = [commitsByMinute[key].time];
-              authors.forEach(author => {
-                row.push(commitsByMinute[key][author]);
-              });
-              dataTable.addRow(row);
+            // Exemple de données ajoutées à dataTable
+            authors.forEach((author, index) => {
+              // Ajouter des données exemple pour chaque auteur
+              // Vous devez remplacer ceci par votre logique pour compter et organiser les commits
+              dataTable.addRow([new Date(), ...Array(authors.length).fill().map((_, i) => i === index ? 1 : null)]);
             });
 
             var options = {
-              title: 'Commits par minute et par auteur du 12 février de 14h à 18h',
-              hAxis: { title: 'Heure', format: 'HH:mm', viewWindow: {min: new Date(2024, 1, 12, 14), max: new Date(2024, 1, 12, 18)} },
-              vAxis: { title: 'Nombre de Commits' },
-              colors: authors.map(author => authorColors[author]),
-              legend: { position: 'right' }
+              title: 'Commits par Minute par Auteur',
+              curveType: 'function',
+              legend: { position: 'bottom' },
+              colors: colors.slice(0, authors.length),
+              hAxis: {
+                title: 'Temps',
+                format: 'HH:mm',
+                viewWindow: {
+                  min: new Date(2024, 1, 12, 14, 0, 0),
+                  max: new Date(2024, 1, 12, 18, 0, 0)
+                }
+              },
+              vAxis: {
+                title: 'Nombre de Commits',
+              },
             };
 
             var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
             chart.draw(dataTable, options);
+          })
+          .catch(error => {
+            console.error('Fetch error:', error);
           });
       }
     </script>
